@@ -11,10 +11,22 @@ LSTM (Long Term Short Memory), is a more sophisticated verison of RNNs(Recurrent
 Human thinking is  a linear learning mechanism , wherein people construct their thoughs from scratch each second.s you read this essay, you understand each word based on your understanding of previous words. You don’t throw everything away and start thinking from scratch again. Your thoughts have persistence.
 
 Neural Networks can't do this since they can't store their immediate information storage into specific cells due to traditional ANN structures.
-
+![LSTM3-C-line](https://user-images.githubusercontent.com/111745916/195310323-ace5fa2a-322e-4b7e-9d4d-f3a201814ae6.png)
 Recurrent neural networks address this issue. They are networks with loops in them, allowing information to persist.
 
+The first step in our LSTM is to decide what information we’re going to throw away from the cell state. This decision is made by a sigmoid layer called the “forget gate layer.” It looks at ht−1 and xt, and outputs a number between 0 and 1 for each number in the cell state Ct−1. A 1 represents “completely keep this” while a 0 represents “completely get rid of this.”
 These loops make recurrent neural networks seem kind of mysterious. However, if you think a bit more, it turns out that they aren’t all that different than a normal neural network. A recurrent neural network can be thought of as multiple copies of the same network, each passing a message to a successor. Consider what happens if we unroll the loop:
+![LSTM3-focus-f](https://user-images.githubusercontent.com/111745916/195311083-02bf232a-a78e-4682-b51e-7c42b1bbd813.png)
+First, a sigmoid layer called the “input gate layer” decides which values we’ll update. Next, a tanh layer creates a vector of new candidate values, C~t, that could be added to the state. In the next step, we’ll combine these two to create an update to the state.
+
+![LSTM3-focus-i](https://user-images.githubusercontent.com/111745916/195311317-1a9f1e3d-fed6-4f65-af01-47a57452256b.png)
+Using the tanh function to apply the local transformation on entrant variable from the sigmoid function.
+![LSTM3-focus-C](https://user-images.githubusercontent.com/111745916/195311342-57df5b57-afc8-412d-9522-16dce732441a.png)
+We multiply the old state by ft, forgetting the things we decided to forget earlier. Then we add it∗C~t. This is the new candidate values, scaled by how much we decided to update each state value.
+![LSTM3-focus-o](https://user-images.githubusercontent.com/111745916/195311360-ae0bae42-bb7f-4ee6-8ca0-291e56454743.png)
+Finally, we need to decide what we’re going to output. This output will be based on our cell state, but will be a filtered version. First, we run a sigmoid layer which decides what parts of the cell state we’re going to output. Then, we put the cell state through tanh (to push the values to be between −1 and 1) and multiply it by the output of the sigmoid gate, so that we only output the parts we decided to.
+#### Completed LSTM Model
+![LSTM3-chain](https://user-images.githubusercontent.com/111745916/195311523-ec257a8e-c9a9-4925-824f-7587020725e2.png)
 
 # Code 
 Code is split into two files , the training file and implementation file.
@@ -79,7 +91,10 @@ t = np.array([datetime.fromtimestamp(time[i]/1000).strftime('%H:%M:%S') for i in
 plt.xlabel("Time Step")
 plt.ylabel("Bitcoin Price $")
 plt.plot(price)
+------------------------------------
 ```
+![download](https://user-images.githubusercontent.com/111745916/195309842-aa79e2f9-5806-4d5e-8008-4aca83685f08.png)
+
 Constructing the Dataset
 ```
 timeframe = pd.DataFrame({'Time':t,'Price $BTC':price})
@@ -381,8 +396,9 @@ plt.plot(y_pred,label="Prediction")
 plt.legend()
 plt.show()
 -------------------------------------------------------------------
-
 ```
+![download](https://user-images.githubusercontent.com/111745916/195310194-d1531e00-0eec-49e8-93f2-7db98e419c6b.png)
+
 Checking the R^2 accuracy 
 ```
 from sklearn.metrics import r2_score
